@@ -377,8 +377,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 } else {
                     println("Resource not in bundle, must download!")
                     if downloadCount == 0 {
+                        let soundPath = cacheSoundDirectoryName().stringByAppendingPathComponent(fileCheck)
                         let soundURL = "\(downloadURL)\(fileCheck)"
-                        let soundData = NSData(contentsOfURL: soundURL!)
+                        let soundData = NSData(contentsOfURL: NSURL(fileURLWithPath: soundURL)!)
                         if (soundData != nil) {
                             NSFileManager.defaultManager().createFileAtPath(soundPath, contents: soundData, attributes: nil)
                             print("Sound is now Cached! \(soundPath)")
@@ -387,6 +388,22 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 }
             }
         }
+    }
+    
+    func cacheSoundDirectoryName() -> NSString {
+        let directory = "Sounds"
+        let cacheDirectoryName = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! NSString
+        let finalDirectoryName = cacheDirectoryName.stringByAppendingPathComponent(directory)
+        
+        /* Swift 2 version
+        do {
+            try NSFileManager.defaultManager().createDirectoryAtPath(finalDirectoryName, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print(error)
+        }
+        */
+        NSFileManager.defaultManager().createDirectoryAtPath(finalDirectoryName, withIntermediateDirectories: true, attributes: nil, error: nil)
+        return finalDirectoryName
     }
     
     func loadGame() {
