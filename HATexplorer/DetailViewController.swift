@@ -13,6 +13,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     
+    @IBOutlet weak var loadingActivitySpinner: UIActivityIndicatorView!
     @IBOutlet weak var gameDescription: UITextView!
     
     let downloadURL = "https://mld.jensenius.org/download/"
@@ -36,7 +37,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     
     var loader = NSURLConnection()
     var downloader = NSURLConnection()
-    let downloadCount:NSInteger = 0
+    var downloadCount = 0
     
     var currentEvent = NSString()
     
@@ -48,7 +49,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     var identityDebug = NSMutableDictionary()
     
     let userDefaults = NSUserDefaults.standardUserDefaults()
-
+    
 
     var detailItem: AnyObject? {
         didSet {
@@ -61,7 +62,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         // Update the user interface for the detail item.
         if let detail: AnyObject = self.detailItem {
             if let label = self.detailDescriptionLabel {
-                label.text = detail.description
+                label.text = "Loading Game"
+                self.title = detail.objectForKey("title") as? String
+                loadGame()
             }
         }
     }
@@ -89,7 +92,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         locationManager.startUpdatingLocation()
         
         
-        loadGame()
+        //loadGame()
         
         //Let's reload game data every 10 seconds
         NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: "loadGame", userInfo: nil, repeats: true)
@@ -106,6 +109,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         currentLon = manager.location.coordinate.longitude - offsetLng
         currentLocation = CLLocation(latitude: currentLat, longitude: currentLon)
         
+        //println("I have a location and I am loading more stuff")
         if (loaded == true) {
             checkStates()
         }
@@ -159,6 +163,10 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         } else if downloadCount == 0 {
             //println("Regular loop")
             //Let's get sounds playing!
+            self.detailDescriptionLabel.hidden = true
+            self.loadingActivitySpinner.hidden = true
+            self.gameDescription.hidden = false
+            
             for layer in layers {
                 var layerTitle = layer["title"] as! NSString
                 //println("Checking layer: \(layerTitle)")
@@ -207,7 +215,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             
             //loop through both identity and event files, grab the last one and set it to play: FIX LATER
             
-            let cachePath = cacheDirectory()
+            let cachePath = cacheSoundDirectoryName()
             
             var files:NSArray = identity["file"] as! NSArray
             var identityURL = NSURL()
@@ -218,6 +226,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 let fileCheck = "\(fileid).\(ext)"
                 identityURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))!
             }
+            
             
             identityPlayers.setObject(AVAudioPlayer(contentsOfURL: identityURL, error: nil), forKey: zoneId)
             (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
@@ -351,7 +360,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     
     func checkFiles(files:NSArray) {
         // Check to see if file is in our local cache, if not, check to see if it is in the application, if not, download!
-        let cachePath = cacheDirectory()
+        let cachePath = cacheSoundDirectoryName()
         
         for file in files {
             let theFile = file as! NSDictionary
@@ -375,16 +384,29 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                         println("NOT COPIED!")
                     }
                 } else {
-                    println("Resource not in bundle, must download!")
-                    if downloadCount == 0 {
-                        let soundPath = cacheSoundDirectoryName().stringByAppendingPathComponent(fileCheck)
-                        let soundURL = "\(downloadURL)\(fileCheck)"
-                        let soundData = NSData(contentsOfURL: NSURL(fileURLWithPath: soundURL)!)
+                    //println("Resource not in bundle, must download \(theFile)!")
+                    downloadCount++
+                    self.detailDescriptionLabel.text = "Downloading \(self.downloadCount) sounds."
+
+                    let soundPath = cacheSoundDirectoryName().stringByAppendingPathComponent(fileCheck)
+                    let soundURL = "\(downloadURL)\(fileid)"
+                    println("Downloading from \(soundURL)")
+                    var request = NSURLRequest(URL: NSURL(string: soundURL)!)
+                    let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+                    let session = NSURLSession(configuration: config)
+                        
+                    let task : NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {(soundData, response, error) in
                         if (soundData != nil) {
                             NSFileManager.defaultManager().createFileAtPath(soundPath, contents: soundData, attributes: nil)
-                            print("Sound is now Cached! \(soundPath)")
+                            println("Sound is now Cached! \(soundPath)")
+                            self.downloadCount--
+                            self.detailDescriptionLabel.text = "Downloading \(self.downloadCount) sounds."
+                        } else {
+                            println("SOMETHNIG WRONG WITH soundData 😤")
                         }
-                    }
+                            
+                    });
+                    task.resume()
                 }
             }
         }
@@ -410,10 +432,18 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         //http://www.bytearray.org/?p=5517
         //Download JSON, check if file exists, download missing files.
         
-        println("Loading game...")
+        if loaded == false {
+            self.detailDescriptionLabel.hidden = false
+            self.loadingActivitySpinner.hidden = false
+            self.gameDescription.hidden = true
+        }
         
-        let request = NSURLRequest(URL: NSURL(string: "http://mld.jensenius.org/api/dump/553c1a437d6e7793143af73f")!)
-        loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
+        if let detail: AnyObject = self.detailItem {
+            if let gameID = detail.objectForKey("_id") as? String {
+                let request = NSURLRequest(URL: NSURL(string: "http://mld.jensenius.org/api/dump/" + gameID)!)
+                loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
+            }
+        }
     }
     
     func connection(connection: NSURLConnection!, didReceiveData conData: NSData!) {
@@ -429,8 +459,8 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         if connection == loader {
             let jsonResult: Dictionary = (NSJSONSerialization.JSONObjectWithData(self.bytes!, options: NSJSONReadingOptions.MutableContainers, error: nil) as! Dictionary<String, AnyObject>)
             // we grab the colorsArray element
-            println(jsonResult.count)
-            
+            //println(jsonResult.count)
+            gameDescription.text = jsonResult["introduction"] as? String
             currentGame = jsonResult
             layers = jsonResult["layer"] as! NSArray
             loaded = true
@@ -469,20 +499,6 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             }
         }
         locationManager.startUpdatingLocation()
-    }
-    
-    func cacheDirectory() -> NSString {
-        var directory = NSString()
-        let nsDocumentDirectory = NSSearchPathDirectory.DocumentDirectory
-        let nsUserDomainMask = NSSearchPathDomainMask.UserDomainMask
-        var dirPath = NSString()
-        if let paths = NSSearchPathForDirectoriesInDomains(nsDocumentDirectory, nsUserDomainMask, true) {
-            if paths.count > 0 {
-                dirPath = paths[0] as! NSString
-                
-            }
-        }
-        return dirPath
     }
 
 }
