@@ -27,9 +27,8 @@ class MasterViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         //self.navigationItem.leftBarButtonItem = self.editButtonItem()
-        
-        get_data_from_url("https://mld.jensenius.org/api/map")
 
+        self.title = "Games"
 
         //let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
         //self.navigationItem.rightBarButtonItem = addButton
@@ -37,6 +36,10 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             self.detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
         }
+        
+        get_data_from_url("https://mld.jensenius.org/api/map")
+
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -93,7 +96,7 @@ class MasterViewController: UITableViewController {
                 data: NSData!,
                 error: NSError!) in
                 if data.length > 0 && error == nil{
-                    let json = NSString(data: data, encoding: NSASCIIStringEncoding)
+                    let json = NSString(data: data, encoding: NSUTF8StringEncoding)
                     self.extract_json(json!)
                 }else if data.length == 0 && error == nil{
                     println("Nothing was downloaded")

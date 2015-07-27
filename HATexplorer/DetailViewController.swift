@@ -73,6 +73,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
+        self.gameDescription.hidden = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -102,6 +103,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     
     override func viewWillDisappear(animated: Bool) {
         //Stop everything
+        stopEverything()
     }
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
@@ -151,12 +153,14 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 }
             }
             //For now, if we are a kilometer away from the nearest sound, we will bail and set offsets
-            if (leastDistance > 1000) {
-                offsetLng = currentLon - (currentGame["longitude"] as! Double)
-                offsetLat = currentLat - (currentGame["latitude"] as! Double)
-            } else {
-                offsetLat = 0
-                offsetLng = 0
+            if currentGame["longitude"] != nil {
+                if (leastDistance > 1000) {
+                    offsetLng = currentLon - (currentGame["longitude"] as! Double)
+                    offsetLat = currentLat - (currentGame["latitude"] as! Double)
+                } else {
+                    offsetLat = 0
+                    offsetLng = 0
+                }
             }
             
             firstLoop = false
@@ -216,7 +220,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             //loop through both identity and event files, grab the last one and set it to play: FIX LATER
             
             let cachePath = cacheSoundDirectoryName()
-            
+            var hasIdentitySound = false
             var files:NSArray = identity["file"] as! NSArray
             var identityURL = NSURL()
             for file in files {
@@ -225,42 +229,58 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 let ext = currentFile["title"]!.pathExtension
                 let fileCheck = "\(fileid).\(ext)"
                 identityURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))!
+                hasIdentitySound = true
             }
             
             
-            identityPlayers.setObject(AVAudioPlayer(contentsOfURL: identityURL, error: nil), forKey: zoneId)
-            (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
-            (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
-            (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
+            if hasIdentitySound == true {
+                identityPlayers.setObject(AVAudioPlayer(contentsOfURL: identityURL, error: nil), forKey: zoneId)
+                (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
+                (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+                (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
+            }
             
             var eventFiles:NSArray = event["file"] as! NSArray
             println("Event files \(eventFiles)")
             var eventURL = NSURL()
+            var hasEventSound = false
             for file in eventFiles {
                 let currentFile = file as! NSDictionary
                 let fileid = currentFile["_id"] as! NSString
                 let ext = currentFile["title"]!.pathExtension
                 let fileCheck = "\(fileid).\(ext)"
                 eventURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))!
+                hasEventSound = true
             }
             
-            eventPlayers.setObject(AVAudioPlayer(contentsOfURL: eventURL, error: nil), forKey: zoneId)
-            (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
-            (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
-            (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
+            if hasEventSound == true {
+                eventPlayers.setObject(AVAudioPlayer(contentsOfURL: eventURL, error: nil), forKey: zoneId)
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
+            }
         }
         
         if polygon != "" {
-            (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).volume = 1.0
-            if (zoneId != polygon) {
-                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+            if eventPlayers.objectForKey(polygon) != nil {
+                (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).volume = 1.0
             }
-            (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+            if (zoneId != polygon) {
+                if eventPlayers.objectForKey(zoneId) != nil {
+                    (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+                }
+            }
+            if identityPlayers.objectForKey(zoneId) != nil {
+                (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+            }
             
         } else {
             //Set volume!
             //Make sure all events are muted then set other volumes
-            (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+            if (eventPlayers.objectForKey(zoneId) != nil) {
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
+                println("Event not nil")
+            }
             
             var distanceFrom = Float()
             userDefaults.synchronize()
@@ -298,7 +318,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 volume = 0
             }
             //println("Setting volume to \(volume)")
-            (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = volume
+            if (identityPlayers.objectForKey(zoneId) != nil) {
+                (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = volume
+            }
             var debugText = "\(zoneTitle)\nDistance - \(distance)\nAdjusted Value - \(distanceFrom)\nVolume - \(volume)\n\(formula)"
             identityDebug.setObject(debugText, forKey: zoneId)
             
@@ -460,7 +482,13 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             let jsonResult: Dictionary = (NSJSONSerialization.JSONObjectWithData(self.bytes!, options: NSJSONReadingOptions.MutableContainers, error: nil) as! Dictionary<String, AnyObject>)
             // we grab the colorsArray element
             //println(jsonResult.count)
-            gameDescription.text = jsonResult["introduction"] as? String
+            if jsonResult["introduction"] != nil {
+                gameDescription.text = jsonResult["introduction"] as? String
+            } else {
+                gameDescription.text = "No introduction text has been entered in the settings."
+            }
+            gameDescription.textColor = UIColor.whiteColor()
+            
             currentGame = jsonResult
             layers = jsonResult["layer"] as! NSArray
             loaded = true
@@ -478,8 +506,14 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             var zones = layer["zone"] as! NSArray
             for zone in zones {
                 var id = zone["_id"] as! NSString
-                (eventPlayers.objectForKey(id) as! AVAudioPlayer).stop()
-                (identityPlayers.objectForKey(id) as! AVAudioPlayer).stop()
+                if eventPlayers.objectForKey(id) != nil {
+                    (eventPlayers.objectForKey(id) as! AVAudioPlayer).stop()
+                    eventPlayers.removeObjectForKey(id)
+                }
+                if identityPlayers.objectForKey(id) != nil {
+                    (identityPlayers.objectForKey(id) as! AVAudioPlayer).stop()
+                    identityPlayers.removeObjectForKey(id)
+                }
             }
         }
         locationManager.stopUpdatingLocation()
