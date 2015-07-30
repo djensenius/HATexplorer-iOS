@@ -16,7 +16,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     @IBOutlet weak var loadingActivitySpinner: UIActivityIndicatorView!
     @IBOutlet weak var gameDescription: UITextView!
     
-    let downloadURL = "https://mld.jensenius.org/download/"
+    let downloadURL = "https://nyu.hatengine.com/download/"
     
     let locationManager = CLLocationManager()
     var currentLocation = CLLocation()
@@ -111,7 +111,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         currentLon = manager.location.coordinate.longitude - offsetLng
         currentLocation = CLLocation(latitude: currentLat, longitude: currentLon)
         
-        //println("I have a location and I am loading more stuff")
+        println("I have a location and I am loading more stuff")
         if (loaded == true) {
             checkStates()
         }
@@ -157,15 +157,17 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 if (leastDistance > 1000) {
                     offsetLng = currentLon - (currentGame["longitude"] as! Double)
                     offsetLat = currentLat - (currentGame["latitude"] as! Double)
+                    println("We are offsetting by \(offsetLat), \(offsetLng)")
                 } else {
                     offsetLat = 0
                     offsetLng = 0
+                    println("No offsetting needed")
                 }
             }
             
             firstLoop = false
         } else if downloadCount == 0 {
-            //println("Regular loop")
+            println("Regular loop")
             //Let's get sounds playing!
             self.detailDescriptionLabel.hidden = true
             self.loadingActivitySpinner.hidden = true
@@ -214,9 +216,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     func setSound(zoneId:NSString, identity:NSDictionary, event:NSDictionary, polygon:NSString, distance:Double, sensitivity:Float, zoneTitle:NSString) {
         //Check to see if sound is created, if not, create it
         //If the sound is in a polygon, start event and mute all others
-        if (identityPlayers.objectForKey(zoneId) == nil) {
+        if (identityPlayers.objectForKey(zoneId) == nil && eventPlayers.objectForKey(zoneId) == nil) {
             //Create item!
-            
+            println("Having to create?")
             //loop through both identity and event files, grab the last one and set it to play: FIX LATER
             
             let cachePath = cacheSoundDirectoryName()
@@ -241,7 +243,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             }
             
             var eventFiles:NSArray = event["file"] as! NSArray
-            println("Event files \(eventFiles)")
+            //println("Event files \(eventFiles)")
             var eventURL = NSURL()
             var hasEventSound = false
             for file in eventFiles {
@@ -322,6 +324,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = volume
             }
             var debugText = "\(zoneTitle)\nDistance - \(distance)\nAdjusted Value - \(distanceFrom)\nVolume - \(volume)\n\(formula)"
+            println(debugText)
             identityDebug.setObject(debugText, forKey: zoneId)
             
         }
@@ -462,7 +465,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         
         if let detail: AnyObject = self.detailItem {
             if let gameID = detail.objectForKey("_id") as? String {
-                let request = NSURLRequest(URL: NSURL(string: "http://mld.jensenius.org/api/dump/" + gameID)!)
+                let request = NSURLRequest(URL: NSURL(string: "http://nyu.hatengine.com/api/dump/" + gameID)!)
                 loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
             }
         }

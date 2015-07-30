@@ -37,7 +37,7 @@ class MasterViewController: UITableViewController {
             self.detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
         }
         
-        get_data_from_url("https://mld.jensenius.org/api/map")
+        get_data_from_url("https://nyu.hatengine.com/api/map")
 
         
     }
