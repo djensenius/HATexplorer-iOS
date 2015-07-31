@@ -77,6 +77,11 @@ class MasterViewController: UITableViewController {
 
         let object = objects[indexPath.row] as! NSDictionary
         cell.textLabel!.text = object.valueForKey("title") as? String
+        if (object.valueForKey("introduction") != nil) {
+            cell.detailTextLabel!.text = object.valueForKey("introduction") as? String
+        } else {
+            cell.detailTextLabel!.text = ""
+        }
         return cell
     }
     
@@ -120,9 +125,11 @@ class MasterViewController: UITableViewController {
                     if let game_obj = game_list[i] as? NSDictionary {
                         if let game_name = game_obj["title"] as? String {
                             if let game_id = game_obj["_id"] as? String {
-                                objects.insert(game_obj, atIndex: 0)
-                                //a
-                                //TableData.append(country_name + " [" + country_code + "]")
+                                if let game_introduction = game_obj["introduction"] as? String {
+                                    objects.insert(game_obj, atIndex: 0)
+                                } else {
+                                    objects.insert(game_obj, atIndex: 0)
+                                }
                             }
                         }
                     }

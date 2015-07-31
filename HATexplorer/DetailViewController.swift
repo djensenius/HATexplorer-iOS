@@ -491,6 +491,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 gameDescription.text = "No introduction text has been entered in the settings."
             }
             gameDescription.textColor = UIColor.whiteColor()
+            gameDescription.font = UIFont.systemFontOfSize(18.0)
             
             currentGame = jsonResult
             layers = jsonResult["layer"] as! NSArray
