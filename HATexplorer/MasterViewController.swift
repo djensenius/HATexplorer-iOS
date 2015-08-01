@@ -120,7 +120,8 @@ class MasterViewController: UITableViewController {
         let jsonData:NSData = data.dataUsingEncoding(NSUTF8StringEncoding)!
         let json: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: nil, error: &parseError)
         if (parseError == nil) {
-            if let game_list = json as? NSArray {
+            if var game_list = json as? NSArray {
+                game_list = game_list.reverseObjectEnumerator().allObjects
                 for (var i = 0; i < game_list.count ; i++ ) {
                     if let game_obj = game_list[i] as? NSDictionary {
                         if let game_name = game_obj["title"] as? String {

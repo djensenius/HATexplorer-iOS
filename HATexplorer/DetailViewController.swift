@@ -260,15 +260,20 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).pause()
+                println("Setting event sound... and pausing")
             }
         }
         
         if polygon != "" {
             if eventPlayers.objectForKey(polygon) != nil {
+                (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).play()
                 (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).volume = 1.0
+                println("Event sound now plays")
             }
             if (zoneId != polygon) {
                 if eventPlayers.objectForKey(zoneId) != nil {
+                    (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).pause()
                     (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
                 }
             }
@@ -280,8 +285,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             //Set volume!
             //Make sure all events are muted then set other volumes
             if (eventPlayers.objectForKey(zoneId) != nil) {
+                (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).pause()
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
-                println("Event not nil")
+                //println("Event not nil")
             }
             
             var distanceFrom = Float()
@@ -291,19 +297,19 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 println(useLog);
                 if (useLog as! Bool == true) {
                     //Logorithmic growth
-                    println("Logorithmic growth!")
+                    //println("Logorithmic growth!")
                     distanceFrom = 1 + log(Float(distance / 1000))
                     formula = "1 + log(Float(\(distance) / 1000))"
                     
                 } else {
                     //Normal growth
-                    println("Normal growth!")
+                    //println("Normal growth!")
                     distanceFrom = 1 + Float(distance / 1000)
                     formula = "1 + Float(\(distance) / 1000)"
                 }
             } else {
                 //Normal growth
-                println("Normal growth!")
+                //println("Normal growth!")
                 distanceFrom = 1 + Float(distance / 1000)
                 formula = "1 + Float(\(distance) / 1000)"
             }
@@ -312,7 +318,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 distanceFrom = 0
             }
             
-            println("Actual distance: \(distance)")
+            //println("Actual distance: \(distance)")
             //var volume:Float = 1.0 - (distanceFrom * sensitivity)
             var volume:Float = (1.0 - (distanceFrom * (sensitivity + 1.0)))
             formula = "1.0 - ((\(formula)) * (\(sensitivity) + 1.0))"
@@ -324,7 +330,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = volume
             }
             var debugText = "\(zoneTitle)\nDistance - \(distance)\nAdjusted Value - \(distanceFrom)\nVolume - \(volume)\n\(formula)"
-            println(debugText)
+            //println(debugText)
             identityDebug.setObject(debugText, forKey: zoneId)
             
         }
