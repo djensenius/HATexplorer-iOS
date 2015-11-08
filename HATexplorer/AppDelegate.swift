@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Override point for customization after application launch.
         let splitViewController = self.window!.rootViewController as! UISplitViewController
         let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
-        navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem()
+        navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem()
         splitViewController.delegate = self
         
         audioController = PdAudioController()
@@ -27,17 +27,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let s = PdAudioController_Bridging().configureAmbientWithSampleRate(44100, numberChannels: 2, mixingEnabled: true, audioController: c)
             switch s {
             case .OK:
-                println("success")
+                print("success")
                 break //success
             case .Error:
-                println("unrecoverable error: failed to initialize audio components")
+                print("unrecoverable error: failed to initialize audio components")
             case .PropertyChanged:
-                println("some properties have changed to run correctly (not fatal)")
-            default:
-                break //do nothing, make compiler happy ;)
+                print("some properties have changed to run correctly (not fatal)")
             }
         } else {
-            println("could not get PdAudioController")
+            print("could not get PdAudioController")
         }
         
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, LockNotifierCallback.notifierProc(), "com.apple.springboard.lockcomplete", nil, CFNotificationSuspensionBehavior.DeliverImmediately)
@@ -49,13 +47,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
         audioController?.active = false
-        println("Will resign active?")
+        print("Will resign active?")
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let fromLock: AnyObject = userDefaults.objectForKey("kDisplayStatusLocked") {
+            print("From locked is \(fromLock)")
             if userDefaults.objectForKey("kDisplayStatusLocked") as! Bool == true {
-                println("Locked screen!")
+                print("Locked screen!")
             } else {
-                println("Home button pressed?")
+                print("Home button pressed?")
                 NSNotificationCenter.defaultCenter().postNotificationName("stopEverything", object: nil)
             }
         }
@@ -73,12 +72,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         audioController?.active = true
-        println("Coming back to life!")
+        print("Coming back to life!")
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let fromLock: AnyObject = userDefaults.objectForKey("kDisplayStatusLocked") {
             if fromLock as! Bool == true {
                 userDefaults.setObject(false, forKey: "kDisplayStatusLocked")
-                println("...from a locked screen!")
+                print("...from a locked screen!")
             } else {
                 NSNotificationCenter.defaultCenter().postNotificationName("restartEverything", object: nil)
             }
@@ -91,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // MARK: - Split view
 
-    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController:UIViewController!, ontoPrimaryViewController primaryViewController:UIViewController!) -> Bool {
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController:UIViewController, ontoPrimaryViewController primaryViewController:UIViewController) -> Bool {
         if let secondaryAsNavController = secondaryViewController as? UINavigationController {
             if let topAsDetailController = secondaryAsNavController.topViewController as? DetailViewController {
                 if topAsDetailController.detailItem == nil {

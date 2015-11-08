@@ -16,7 +16,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     @IBOutlet weak var loadingActivitySpinner: UIActivityIndicatorView!
     @IBOutlet weak var gameDescription: UITextView!
     
-    let downloadURL = "https://nyu.hatengine.com/download/"
+    let downloadURL = "https://waterloo.hatengine.com/download/"
     
     let locationManager = CLLocationManager()
     var currentLocation = CLLocation()
@@ -47,6 +47,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     dynamic var eventPlayerItems = NSMutableDictionary()
     var eventDebug = NSMutableDictionary()
     var identityDebug = NSMutableDictionary()
+    var gameLoader = NSTimer()
     
     let userDefaults = NSUserDefaults.standardUserDefaults()
     
@@ -55,6 +56,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         didSet {
             // Update the view.
             self.configureView()
+            print("Detail item is set... \(detailItem)")
         }
     }
 
@@ -64,6 +66,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             if let label = self.detailDescriptionLabel {
                 label.text = "Loading Game"
                 self.title = detail.objectForKey("title") as? String
+                print("Set title to \(self.title)")
                 loadGame()
             }
         }
@@ -82,9 +85,15 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     }
     
     override func viewWillAppear(animated: Bool) {
-        // Background sound
-        AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, error: nil)
-        AVAudioSession.sharedInstance().setActive(true, error: nil)
+        do {
+            // Background sound
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        } catch _ {
+        }
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch _ {
+        }
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         locationManager.delegate = self
@@ -96,7 +105,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         //loadGame()
         
         //Let's reload game data every 10 seconds
-        NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: "loadGame", userInfo: nil, repeats: true)
+        gameLoader = NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: "loadGame", userInfo: nil, repeats: true)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "stopEverything", name: "stopEverything", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "restartEverything", name: "restartEverything", object: nil)
     }
@@ -106,12 +115,12 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         stopEverything()
     }
     
-    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
-        currentLat = manager.location.coordinate.latitude - offsetLat
-        currentLon = manager.location.coordinate.longitude - offsetLng
+    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        currentLat = manager.location!.coordinate.latitude - offsetLat
+        currentLon = manager.location!.coordinate.longitude - offsetLng
         currentLocation = CLLocation(latitude: currentLat, longitude: currentLon)
         
-        println("I have a location and I am loading more stuff")
+        print("I have a location and I am loading more stuff")
         if (loaded == true) {
             checkStates()
         }
@@ -120,33 +129,33 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     func checkStates() {
         var leastDistance = 1000000000000.1
         if (firstLoop == true) {
-            println("First loop, checking to see if we are in range")
+            print("First loop, checking to see if we are in range")
             for layer in layers {
-                var layerTitle = layer["title"] as! NSString
+                //var layerTitle = layer["title"] as! NSString
                 //println("Checking layer: \(layerTitle)")
                 
-                var zones = layer["zone"] as! NSArray
+                let zones = layer["zone"] as! NSArray
                 for zone in zones {
-                    var zoneTitle = zone["title"] as! NSString
+                    let zoneTitle = zone["title"] as! NSString
                     
                     if (inGameArea == false) {
-                        var polygon = zone["polygon"] as! NSArray
-                        println("Checking zone \(zoneTitle)")
+                        let polygon = zone["polygon"] as! NSArray
+                        print("Checking zone \(zoneTitle)")
                         if (insidePolygon(polygon)) {
                             inGameArea = true
                             inPolygon = true
                         }
                         
-                        var distance = distanceFromPolygon(polygon)
+                        let distance = distanceFromPolygon(polygon)
                         if (distance < leastDistance) {
                             leastDistance = distance
                         }
                     }
                     
-                    var identity = zone["identity"] as! NSDictionary
+                    let identity = zone["identity"] as! NSDictionary
                     checkFiles(identity["file"] as! NSArray)
                     
-                    var event = zone["event"] as! NSDictionary
+                    let event = zone["event"] as! NSDictionary
                     checkFiles(event["file"] as! NSArray)
                     
                     //println("Identity is \(identity) ")
@@ -157,31 +166,31 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 if (leastDistance > 1000) {
                     offsetLng = currentLon - (currentGame["longitude"] as! Double)
                     offsetLat = currentLat - (currentGame["latitude"] as! Double)
-                    println("We are offsetting by \(offsetLat), \(offsetLng)")
+                    print("We are offsetting by \(offsetLat), \(offsetLng)")
                 } else {
                     offsetLat = 0
                     offsetLng = 0
-                    println("No offsetting needed")
+                    print("No offsetting needed")
                 }
             }
             
             firstLoop = false
         } else if downloadCount == 0 {
-            println("Regular loop")
+            print("Regular loop")
             //Let's get sounds playing!
             self.detailDescriptionLabel.hidden = true
             self.loadingActivitySpinner.hidden = true
             self.gameDescription.hidden = false
             
             for layer in layers {
-                var layerTitle = layer["title"] as! NSString
+                //var layerTitle = layer["title"] as! NSString
                 //println("Checking layer: \(layerTitle)")
                 
-                var zones = layer["zone"] as! NSArray
+                let zones = layer["zone"] as! NSArray
                 for zone in zones {
-                    var zoneTitle = zone["title"] as! NSString
-                    var id = zone["_id"] as! NSString
-                    var polygon = zone["polygon"] as! NSArray
+                    //var zoneTitle = zone["title"] as! NSString
+                    let id = zone["_id"] as! NSString
+                    let polygon = zone["polygon"] as! NSArray
                     //println("Checking zone \(zoneTitle)")
                     if (insidePolygon(polygon)) {
                         inPolygon = true
@@ -194,14 +203,14 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                         //println("Not in polygon")
                     }
                     
-                    var distance = distanceFromPolygon(polygon)
+                    let distance = distanceFromPolygon(polygon)
                     if (distance < leastDistance) {
                         leastDistance = distance
                     }
                     
-                    var identity = zone["identity"] as! NSDictionary
-                    var event = zone["event"] as! NSDictionary
-                    var zt = zone["title"] as! NSString
+                    let identity = zone["identity"] as! NSDictionary
+                    let event = zone["event"] as! NSDictionary
+                    let zt = zone["title"] as! NSString
                     var sensitivity:Float = 0.0
                     if (identity["sensitivity"] != nil) {
                         sensitivity = identity["sensitivity"] as! Float
@@ -216,33 +225,34 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     func setSound(zoneId:NSString, identity:NSDictionary, event:NSDictionary, polygon:NSString, distance:Double, sensitivity:Float, zoneTitle:NSString) {
         //Check to see if sound is created, if not, create it
         //If the sound is in a polygon, start event and mute all others
+        print("Setting sound?")
         if (identityPlayers.objectForKey(zoneId) == nil && eventPlayers.objectForKey(zoneId) == nil) {
             //Create item!
-            println("Having to create?")
+            print("Having to create?")
             //loop through both identity and event files, grab the last one and set it to play: FIX LATER
             
             let cachePath = cacheSoundDirectoryName()
             var hasIdentitySound = false
-            var files:NSArray = identity["file"] as! NSArray
+            let files:NSArray = identity["file"] as! NSArray
             var identityURL = NSURL()
             for file in files {
                 let currentFile = file as! NSDictionary
                 let fileid = currentFile["_id"] as! NSString
                 let ext = currentFile["title"]!.pathExtension
                 let fileCheck = "\(fileid).\(ext)"
-                identityURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))!
+                identityURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))
                 hasIdentitySound = true
             }
             
             
             if hasIdentitySound == true {
-                identityPlayers.setObject(AVAudioPlayer(contentsOfURL: identityURL, error: nil), forKey: zoneId)
+                identityPlayers.setObject(try! AVAudioPlayer(contentsOfURL: identityURL), forKey: zoneId)
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
             }
             
-            var eventFiles:NSArray = event["file"] as! NSArray
+            let eventFiles:NSArray = event["file"] as! NSArray
             //println("Event files \(eventFiles)")
             var eventURL = NSURL()
             var hasEventSound = false
@@ -251,17 +261,17 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                 let fileid = currentFile["_id"] as! NSString
                 let ext = currentFile["title"]!.pathExtension
                 let fileCheck = "\(fileid).\(ext)"
-                eventURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))!
+                eventURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))
                 hasEventSound = true
             }
             
             if hasEventSound == true {
-                eventPlayers.setObject(AVAudioPlayer(contentsOfURL: eventURL, error: nil), forKey: zoneId)
+                eventPlayers.setObject(try! AVAudioPlayer(contentsOfURL: eventURL), forKey: zoneId)
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).numberOfLoops = -1
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = 0.0
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).play()
                 (eventPlayers.objectForKey(zoneId) as! AVAudioPlayer).pause()
-                println("Setting event sound... and pausing")
+                print("Setting event sound... and pausing")
             }
         }
         
@@ -269,7 +279,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             if eventPlayers.objectForKey(polygon) != nil {
                 (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).play()
                 (eventPlayers.objectForKey(polygon) as! AVAudioPlayer).volume = 1.0
-                println("Event sound now plays")
+                print("Event sound now plays")
             }
             if (zoneId != polygon) {
                 if eventPlayers.objectForKey(zoneId) != nil {
@@ -294,7 +304,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             userDefaults.synchronize()
             var formula = NSString()
             if let useLog: AnyObject = userDefaults.objectForKey("logIdentity") {
-                println(useLog);
+                print(useLog);
                 if (useLog as! Bool == true) {
                     //Logorithmic growth
                     //println("Logorithmic growth!")
@@ -329,7 +339,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             if (identityPlayers.objectForKey(zoneId) != nil) {
                 (identityPlayers.objectForKey(zoneId) as! AVAudioPlayer).volume = volume
             }
-            var debugText = "\(zoneTitle)\nDistance - \(distance)\nAdjusted Value - \(distanceFrom)\nVolume - \(volume)\n\(formula)"
+            let debugText = "\(zoneTitle)\nDistance - \(distance)\nAdjusted Value - \(distanceFrom)\nVolume - \(volume)\n\(formula)"
             //println(debugText)
             identityDebug.setObject(debugText, forKey: zoneId)
             
@@ -337,8 +347,8 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     }
     
     func playerItemDidReachEnd(notification: NSNotification) {
-        println("Looping?? \(notification.object)")
-        var p:AVPlayerItem  = notification.object as! AVPlayerItem
+        print("Looping?? \(notification.object)")
+        let p:AVPlayerItem  = notification.object as! AVPlayerItem
         p .seekToTime(kCMTimeZero)
     }
     
@@ -350,15 +360,15 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         var  polyCoords:Array<CLLocationCoordinate2D> = []
         
         for(var i = 0; i < polygons.count; i++) {
-            var polygon = polygons[i] as! NSDictionary
+            let polygon = polygons[i] as! NSDictionary
             //let curLat = polygon["latitude"] as! CLLocationDegrees
             polyCoords.append(CLLocationCoordinate2DMake(polygon["latitude"] as! CLLocationDegrees, polygon["longitude"] as! CLLocationDegrees))
         }
         
-        var mpr:CGMutablePathRef = CGPathCreateMutable()
+        let mpr:CGMutablePathRef = CGPathCreateMutable()
         
         for (var i = 0; i < polyCoords.count; i++) {
-            var c:CLLocationCoordinate2D = polyCoords[i]
+            let c:CLLocationCoordinate2D = polyCoords[i]
             
             if (i == 0) {
                 CGPathMoveToPoint(mpr, nil, CGFloat(c.longitude), CGFloat(c.latitude))
@@ -377,9 +387,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         var distance = 100000000000000000.1
         
         for coords in polygon {
-            let location = coords as! NSDictionary
+            //let location = coords as! NSDictionary
             let pointLocation = CLLocation(latitude: coords["latitude"] as! CLLocationDegrees, longitude: coords["longitude"] as! CLLocationDegrees)
-            var distanceFrom = pointLocation.distanceFromLocation(currentLocation)
+            let distanceFrom = pointLocation.distanceFromLocation(currentLocation)
             if (distanceFrom < distance) {
                 distance = distanceFrom
             }
@@ -397,22 +407,23 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             let theFile = file as! NSDictionary
             let ext = theFile["title"]!.pathExtension
             let fileid = theFile["_id"] as! NSString
-            let filename = theFile["title"] as! NSString
+            //let filename = theFile["title"] as! NSString
             
             let fileCheck = "\(fileid).\(ext)"
             if NSFileManager.defaultManager().fileExistsAtPath(cachePath.stringByAppendingPathComponent(fileCheck)) {
-                println("File exists in cache")
+                print("File exists in cache")
             } else {
                 let resourceExists = NSBundle.mainBundle().pathForResource(fileid as String, ofType: ext)
                 if ((resourceExists) != nil) {
-                    println("Resource in bundle")
+                    print("Resource in bundle")
                     let fileManager = NSFileManager.defaultManager()
                     let copyTo = "\(cachePath)/\(fileCheck)"
-                    println("Coping from \(resourceExists) to \(copyTo)")
-                    if fileManager.copyItemAtPath(resourceExists!, toPath: copyTo, error: nil) {
-                        println("Copied!")
-                    } else {
-                        println("NOT COPIED!")
+                    print("Coping from \(resourceExists) to \(copyTo)")
+                    do {
+                        try fileManager.copyItemAtPath(resourceExists!, toPath: copyTo)
+                        print("Copied!")
+                    } catch _ {
+                        print("NOT COPIED!")
                     }
                 } else {
                     //println("Resource not in bundle, must download \(theFile)!")
@@ -421,19 +432,19 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
 
                     let soundPath = cacheSoundDirectoryName().stringByAppendingPathComponent(fileCheck)
                     let soundURL = "\(downloadURL)\(fileid)"
-                    println("Downloading from \(soundURL)")
-                    var request = NSURLRequest(URL: NSURL(string: soundURL)!)
+                    print("Downloading from \(soundURL)")
+                    let request = NSURLRequest(URL: NSURL(string: soundURL)!)
                     let config = NSURLSessionConfiguration.defaultSessionConfiguration()
                     let session = NSURLSession(configuration: config)
                         
                     let task : NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {(soundData, response, error) in
                         if (soundData != nil) {
                             NSFileManager.defaultManager().createFileAtPath(soundPath, contents: soundData, attributes: nil)
-                            println("Sound is now Cached! \(soundPath)")
+                            print("Sound is now Cached! \(soundPath)")
                             self.downloadCount--
                             self.detailDescriptionLabel.text = "Downloading \(self.downloadCount) sounds."
                         } else {
-                            println("SOMETHNIG WRONG WITH soundData 😤")
+                            print("SOMETHNIG WRONG WITH soundData 😤")
                         }
                             
                     });
@@ -445,17 +456,15 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     
     func cacheSoundDirectoryName() -> NSString {
         let directory = "Sounds"
-        let cacheDirectoryName = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! NSString
+        let cacheDirectoryName = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let finalDirectoryName = cacheDirectoryName.stringByAppendingPathComponent(directory)
         
-        /* Swift 2 version
         do {
             try NSFileManager.defaultManager().createDirectoryAtPath(finalDirectoryName, withIntermediateDirectories: true, attributes: nil)
         } catch {
             print(error)
         }
-        */
-        NSFileManager.defaultManager().createDirectoryAtPath(finalDirectoryName, withIntermediateDirectories: true, attributes: nil, error: nil)
+        
         return finalDirectoryName
     }
     
@@ -470,9 +479,12 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         }
         
         if let detail: AnyObject = self.detailItem {
+            print("Maybe I'm loading?")
             if let gameID = detail.objectForKey("_id") as? String {
-                let request = NSURLRequest(URL: NSURL(string: "http://nyu.hatengine.com/api/dump/" + gameID)!)
-                loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
+                print("Loading gameID \(gameID)")
+                let request = NSURLRequest(URL: NSURL(string: "https://waterloo.hatengine.com/api/dump/" + gameID)!)
+                self.loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
+                print("SHOULD REALLY BE LOADING!")
             }
         }
     }
@@ -488,34 +500,37 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     func connectionDidFinishLoading(connection: NSURLConnection!) {
         // we serialize our bytes back to the original JSON structure
         if connection == loader {
-            let jsonResult: Dictionary = (NSJSONSerialization.JSONObjectWithData(self.bytes!, options: NSJSONReadingOptions.MutableContainers, error: nil) as! Dictionary<String, AnyObject>)
+            print("Finished lodaing?")
+            let jsonResult: Dictionary = ((try! NSJSONSerialization.JSONObjectWithData(self.bytes!, options: NSJSONReadingOptions.MutableContainers)) as! Dictionary<String, AnyObject>)
             // we grab the colorsArray element
             //println(jsonResult.count)
             if jsonResult["introduction"] != nil {
-                gameDescription.text = jsonResult["introduction"] as? String
+                self.gameDescription.text = jsonResult["introduction"] as? String
+                print("Set the game description \(gameDescription.text)")
             } else {
-                gameDescription.text = "No introduction text has been entered in the settings."
+                self.gameDescription.text = "No introduction text has been entered in the settings."
             }
-            gameDescription.textColor = UIColor.whiteColor()
-            gameDescription.font = UIFont.systemFontOfSize(18.0)
+            self.gameDescription.textColor = UIColor.whiteColor()
+            self.gameDescription.font = UIFont.systemFontOfSize(18.0)
             
-            currentGame = jsonResult
-            layers = jsonResult["layer"] as! NSArray
-            loaded = true
+            self.currentGame = jsonResult
+            self.layers = jsonResult["layer"] as! NSArray
+            self.loaded = true
         } else {
-            println("Must have finished downloading file")
+            print("Must have finished downloading file")
         }
     }
     
     func stopEverything() {
-        println("Going to stop everything!")
+        print("Going to stop everything!")
+        gameLoader.invalidate()
         for layer in layers {
-            var layerTitle = layer["title"] as! NSString
+            //var layerTitle = layer["title"] as! NSString
             //println("Checking layer: \(layerTitle)")
             
-            var zones = layer["zone"] as! NSArray
+            let zones = layer["zone"] as! NSArray
             for zone in zones {
-                var id = zone["_id"] as! NSString
+                let id = zone["_id"] as! NSString
                 if eventPlayers.objectForKey(id) != nil {
                     (eventPlayers.objectForKey(id) as! AVAudioPlayer).stop()
                     eventPlayers.removeObjectForKey(id)
@@ -530,14 +545,14 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     }
     
     func restartEverything() {
-        println("Going to restart everything!")
+        print("Going to restart everything!")
         for layer in layers {
-            var layerTitle = layer["title"] as! NSString
+            //var layerTitle = layer["title"] as! NSString
             //println("Checking layer: \(layerTitle)")
             
-            var zones = layer["zone"] as! NSArray
+            let zones = layer["zone"] as! NSArray
             for zone in zones {
-                var id = zone["_id"] as! NSString
+                let id = zone["_id"] as! NSString
                 (eventPlayers.objectForKey(id) as! AVAudioPlayer).play()
                 (identityPlayers.objectForKey(id) as! AVAudioPlayer).play()
             }

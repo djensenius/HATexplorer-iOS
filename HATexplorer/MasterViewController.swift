@@ -34,10 +34,11 @@ class MasterViewController: UITableViewController {
         //self.navigationItem.rightBarButtonItem = addButton
         if let split = self.splitViewController {
             let controllers = split.viewControllers
-            self.detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
+            //self.detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
+            self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
         
-        get_data_from_url("https://nyu.hatengine.com/api/map")
+        get_data_from_url("https://waterloo.hatengine.com/api/map")
 
         
     }
@@ -51,7 +52,7 @@ class MasterViewController: UITableViewController {
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showDetail" {
-            if let indexPath = self.tableView.indexPathForSelectedRow() {
+            if let indexPath = self.tableView.indexPathForSelectedRow {
                 let object = objects[indexPath.row] as! NSDictionary
                 let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
                 controller.detailItem = object
@@ -73,7 +74,7 @@ class MasterViewController: UITableViewController {
     
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) 
 
         let object = objects[indexPath.row] as! NSDictionary
         cell.textLabel!.text = object.valueForKey("title") as? String
@@ -86,9 +87,9 @@ class MasterViewController: UITableViewController {
     }
     
     func get_data_from_url(url:String) {
-        print("Getting data!")
-        let httpMethod = "GET"
-        let timeout = 15
+        print("Getting data!", terminator: "")
+        //let httpMethod = "GET"
+        //let timeout = 15
         let url = NSURL(string: url)
         let urlRequest = NSMutableURLRequest(URL: url!,
             cachePolicy: .ReloadIgnoringLocalAndRemoteCacheData,
@@ -97,16 +98,16 @@ class MasterViewController: UITableViewController {
         NSURLConnection.sendAsynchronousRequest(
             urlRequest,
             queue: queue,
-            completionHandler: {(response: NSURLResponse!,
-                data: NSData!,
-                error: NSError!) in
-                if data.length > 0 && error == nil{
-                    let json = NSString(data: data, encoding: NSUTF8StringEncoding)
+            completionHandler: {(response: NSURLResponse?,
+                data: NSData?,
+                error: NSError?) in
+                if data!.length > 0 && error == nil{
+                    let json = NSString(data: data!, encoding: NSUTF8StringEncoding)
                     self.extract_json(json!)
-                }else if data.length == 0 && error == nil{
-                    println("Nothing was downloaded")
+                }else if data!.length == 0 && error == nil{
+                    print("Nothing was downloaded")
                 } else if error != nil{
-                    println("Error happened = \(error)")
+                    print("Error happened = \(error)")
                 }
             }
         )
@@ -118,7 +119,13 @@ class MasterViewController: UITableViewController {
         
         
         let jsonData:NSData = data.dataUsingEncoding(NSUTF8StringEncoding)!
-        let json: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: nil, error: &parseError)
+        let json: AnyObject?
+        do {
+            json = try NSJSONSerialization.JSONObjectWithData(jsonData, options: [])
+        } catch let error as NSError {
+            parseError = error
+            json = nil
+        }
         if (parseError == nil) {
             if var game_list = json as? NSArray {
                 game_list = game_list.reverseObjectEnumerator().allObjects
@@ -127,6 +134,7 @@ class MasterViewController: UITableViewController {
                         if let game_name = game_obj["title"] as? String {
                             if let game_id = game_obj["_id"] as? String {
                                 if let game_introduction = game_obj["introduction"] as? String {
+                                    print("Game name \(game_name) game id \(game_id) game introduction \(game_introduction)")
                                     objects.insert(game_obj, atIndex: 0)
                                 } else {
                                     objects.insert(game_obj, atIndex: 0)
