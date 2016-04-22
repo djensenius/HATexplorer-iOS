@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import AVFoundation
 
 class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudioPlayerDelegate {
 
@@ -16,7 +17,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     @IBOutlet weak var loadingActivitySpinner: UIActivityIndicatorView!
     @IBOutlet weak var gameDescription: UITextView!
     
-    let downloadURL = "https://waterloo.hatengine.com/download/"
+    let downloadURL = "https://mld.jensenius.org/download/"
     
     let locationManager = CLLocationManager()
     var currentLocation = CLLocation()
@@ -35,8 +36,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
     var offsetLng:Double = 0
     var offsetLat:Double = 0
     
-    var loader = NSURLConnection()
-    var downloader = NSURLConnection()
+    var loader: NSURLSession?
     var downloadCount = 0
     
     var currentEvent = NSString()
@@ -105,9 +105,9 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         //loadGame()
         
         //Let's reload game data every 10 seconds
-        gameLoader = NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: "loadGame", userInfo: nil, repeats: true)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "stopEverything", name: "stopEverything", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "restartEverything", name: "restartEverything", object: nil)
+        gameLoader = NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: #selector(DetailViewController.loadGame), userInfo: nil, repeats: true)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(DetailViewController.stopEverything), name: "stopEverything", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(DetailViewController.restartEverything), name: "restartEverything", object: nil)
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -238,7 +238,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             for file in files {
                 let currentFile = file as! NSDictionary
                 let fileid = currentFile["_id"] as! NSString
-                let ext = currentFile["title"]!.pathExtension
+                let ext = (currentFile["title"] as! NSURL).pathExtension
                 let fileCheck = "\(fileid).\(ext)"
                 identityURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))
                 hasIdentitySound = true
@@ -259,7 +259,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             for file in eventFiles {
                 let currentFile = file as! NSDictionary
                 let fileid = currentFile["_id"] as! NSString
-                let ext = currentFile["title"]!.pathExtension
+                let ext = (currentFile["title"] as! NSURL).pathExtension
                 let fileCheck = "\(fileid).\(ext)"
                 eventURL = NSURL(fileURLWithPath: cachePath.stringByAppendingPathComponent(fileCheck))
                 hasEventSound = true
@@ -359,7 +359,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         
         var  polyCoords:Array<CLLocationCoordinate2D> = []
         
-        for(var i = 0; i < polygons.count; i++) {
+        for(var i = 0; i < polygons.count; i += 1) {
             let polygon = polygons[i] as! NSDictionary
             //let curLat = polygon["latitude"] as! CLLocationDegrees
             polyCoords.append(CLLocationCoordinate2DMake(polygon["latitude"] as! CLLocationDegrees, polygon["longitude"] as! CLLocationDegrees))
@@ -367,7 +367,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         
         let mpr:CGMutablePathRef = CGPathCreateMutable()
         
-        for (var i = 0; i < polyCoords.count; i++) {
+        for (var i = 0; i < polyCoords.count; i += 1) {
             let c:CLLocationCoordinate2D = polyCoords[i]
             
             if (i == 0) {
@@ -405,7 +405,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
         
         for file in files {
             let theFile = file as! NSDictionary
-            let ext = theFile["title"]!.pathExtension
+            let ext = (theFile["title"] as! NSURL).pathExtension
             let fileid = theFile["_id"] as! NSString
             //let filename = theFile["title"] as! NSString
             
@@ -427,7 +427,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                     }
                 } else {
                     //println("Resource not in bundle, must download \(theFile)!")
-                    downloadCount++
+                    downloadCount += 1
                     self.detailDescriptionLabel.text = "Downloading \(self.downloadCount) sounds."
 
                     let soundPath = cacheSoundDirectoryName().stringByAppendingPathComponent(fileCheck)
@@ -441,7 +441,7 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
                         if (soundData != nil) {
                             NSFileManager.defaultManager().createFileAtPath(soundPath, contents: soundData, attributes: nil)
                             print("Sound is now Cached! \(soundPath)")
-                            self.downloadCount--
+                            self.downloadCount = self.downloadCount - 1
                             self.detailDescriptionLabel.text = "Downloading \(self.downloadCount) sounds."
                         } else {
                             print("SOMETHNIG WRONG WITH soundData 😤")
@@ -482,8 +482,34 @@ class DetailViewController: UIViewController, CLLocationManagerDelegate, AVAudio
             print("Maybe I'm loading?")
             if let gameID = detail.objectForKey("_id") as? String {
                 print("Loading gameID \(gameID)")
-                let request = NSURLRequest(URL: NSURL(string: "https://waterloo.hatengine.com/api/dump/" + gameID)!)
-                self.loader = NSURLConnection(request: request, delegate: self, startImmediately: true)!
+                let request = NSURLRequest(URL: NSURL(string: "https://mld.jensenius.org/api/dump/" + gameID)!)
+                let detailSession = NSURLSession.sharedSession()
+                
+                detailSession.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
+                    print("Finished lodaing?")
+                    var jsonResult : AnyObject!
+                    do {
+                        jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: [])
+                    } catch {
+                        print("Well, shit (delegate!) again, another error")
+                    }
+                    // we grab the colorsArray element
+                    //println(jsonResult.count)
+                    dispatch_async(dispatch_get_main_queue(), {
+                        if jsonResult.objectForKey("introduction") != nil {
+                            self.gameDescription.text = jsonResult.objectForKey("introduction") as? String
+                            print("Set the game description \(self.gameDescription.text)")
+                        } else {
+                            self.gameDescription.text = "No introduction text has been entered in the settings."
+                        }
+                        self.gameDescription.textColor = UIColor.whiteColor()
+                        self.gameDescription.font = UIFont.systemFontOfSize(18.0)
+                    
+                        self.currentGame = jsonResult as! NSDictionary
+                        self.layers = jsonResult["layer"] as! NSArray
+                        self.loaded = true
+                    })
+                }).resume()
                 print("SHOULD REALLY BE LOADING!")
             }
         }

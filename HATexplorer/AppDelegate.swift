@@ -12,7 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
 
     var window: UIWindow?
-    var audioController: PdAudioController?
+    //var audioController: PdAudioController?
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
         navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem()
         splitViewController.delegate = self
-        
+        /*
         audioController = PdAudioController()
         if let c = audioController {
             //let s = PdAudioController_Bridging().configurePlaybackWithSampleRate(44100, numberChannels: 2, inputEnabled: true, mixingEnabled: true, audioController: c)
@@ -37,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         } else {
             print("could not get PdAudioController")
         }
+ */
         
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, LockNotifierCallback.notifierProc(), "com.apple.springboard.lockcomplete", nil, CFNotificationSuspensionBehavior.DeliverImmediately)
         
@@ -46,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-        audioController?.active = false
+        //audioController?.active = false
         print("Will resign active?")
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let fromLock: AnyObject = userDefaults.objectForKey("kDisplayStatusLocked") {
@@ -71,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        audioController?.active = true
+        //audioController?.active = true
         print("Coming back to life!")
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let fromLock: AnyObject = userDefaults.objectForKey("kDisplayStatusLocked") {

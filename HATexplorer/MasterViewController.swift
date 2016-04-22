@@ -38,7 +38,7 @@ class MasterViewController: UITableViewController {
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
         
-        get_data_from_url("https://waterloo.hatengine.com/api/map")
+        get_data_from_url("https://mld.jensenius.org/api/map")
 
         
     }
@@ -129,7 +129,7 @@ class MasterViewController: UITableViewController {
         if (parseError == nil) {
             if var game_list = json as? NSArray {
                 game_list = game_list.reverseObjectEnumerator().allObjects
-                for (var i = 0; i < game_list.count ; i++ ) {
+                for (var i = 0; i < game_list.count ; i += 1 ) {
                     if let game_obj = game_list[i] as? NSDictionary {
                         if let game_name = game_obj["title"] as? String {
                             if let game_id = game_obj["_id"] as? String {

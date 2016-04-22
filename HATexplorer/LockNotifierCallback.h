@@ -8,6 +8,7 @@
 
 #ifndef HATFinder_LockNotifierCallback_h
 #define HATFinder_LockNotifierCallback_h
+#include <UIKit/UIKit.h>
 
 @interface LockNotifierCallback : NSObject
 
