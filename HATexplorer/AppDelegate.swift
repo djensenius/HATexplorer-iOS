@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Fabric
+import Crashlytics
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -38,6 +41,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             print("could not get PdAudioController")
         }
  */
+        
+        Fabric.with([Crashlytics.self])
         
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, LockNotifierCallback.notifierProc(), "com.apple.springboard.lockcomplete", nil, CFNotificationSuspensionBehavior.DeliverImmediately)
         

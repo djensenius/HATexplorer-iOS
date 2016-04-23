@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		003678E2602C9B4E16963495 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54084A355E66A15BA964F37F /* libPods.a */; };
 		630C21121CCADA4C00352E60 /* LockNotifierCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 630C21111CCADA4C00352E60 /* LockNotifierCallback.m */; };
 		6330A8781B604E1E009DB5F5 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 6330A8761B604E1E009DB5F5 /* LICENSE */; };
 		63617A161B6428D50048C7D4 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63617A151B6428D50048C7D4 /* MapKit.framework */; };
@@ -16,7 +17,6 @@
 		63E6B2181B60432A0084CD61 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E6B2171B60432A0084CD61 /* DetailViewController.swift */; };
 		63E6B21B1B60432A0084CD61 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63E6B2191B60432A0084CD61 /* Main.storyboard */; };
 		63E6B21D1B60432A0084CD61 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63E6B21C1B60432A0084CD61 /* Images.xcassets */; };
-		63E6B2201B60432A0084CD61 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 63E6B21E1B60432A0084CD61 /* LaunchScreen.xib */; };
 		63E6B22C1B60432A0084CD61 /* HATexplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E6B22B1B60432A0084CD61 /* HATexplorerTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,7 +46,6 @@
 		63E6B2171B60432A0084CD61 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		63E6B21A1B60432A0084CD61 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		63E6B21C1B60432A0084CD61 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		63E6B21F1B60432A0084CD61 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		63E6B2251B60432A0084CD61 /* HATexplorerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HATexplorerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63E6B22A1B60432A0084CD61 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63E6B22B1B60432A0084CD61 /* HATexplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HATexplorerTests.swift; sourceTree = "<group>"; };
@@ -60,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				63617A161B6428D50048C7D4 /* MapKit.framework in Frameworks */,
+				003678E2602C9B4E16963495 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,7 +105,6 @@
 				630C21111CCADA4C00352E60 /* LockNotifierCallback.m */,
 				63E6B2191B60432A0084CD61 /* Main.storyboard */,
 				63E6B21C1B60432A0084CD61 /* Images.xcassets */,
-				63E6B21E1B60432A0084CD61 /* LaunchScreen.xib */,
 				637FB39A1BEED8B40066A467 /* Launch Screen.storyboard */,
 				63E6B2111B6043290084CD61 /* Supporting Files */,
 				6330A86B1B604551009DB5F5 /* HATexplorer-Bridging-Header.h */,
@@ -163,9 +162,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63E6B22F1B60432A0084CD61 /* Build configuration list for PBXNativeTarget "HATexplorer" */;
 			buildPhases = (
+				1FDF7E905731C959EA9F2377 /* Check Pods Manifest.lock */,
 				63E6B20A1B6043290084CD61 /* Sources */,
 				63E6B20B1B6043290084CD61 /* Frameworks */,
 				63E6B20C1B6043290084CD61 /* Resources */,
+				8A999FEDFE260BB56F1B21C1 /* Embed Pods Frameworks */,
+				0E3E5C0DD64E5469E0171276 /* Copy Pods Resources */,
+				63E343A11CCB99C1000CE8FC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -248,7 +251,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				63E6B21B1B60432A0084CD61 /* Main.storyboard in Resources */,
-				63E6B2201B60432A0084CD61 /* LaunchScreen.xib in Resources */,
 				6330A8781B604E1E009DB5F5 /* LICENSE in Resources */,
 				637FB39B1BEED8B40066A467 /* Launch Screen.storyboard in Resources */,
 				63E6B21D1B60432A0084CD61 /* Images.xcassets in Resources */,
@@ -263,6 +265,67 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0E3E5C0DD64E5469E0171276 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1FDF7E905731C959EA9F2377 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		63E343A11CCB99C1000CE8FC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" 544370f876ffe6725744240104f0010937b75f7c 156373a4a42367c4f588fcae72c05120cff26e739a341a0d2dc235ec151a7046";
+		};
+		8A999FEDFE260BB56F1B21C1 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		63E6B20A1B6043290084CD61 /* Sources */ = {
@@ -301,14 +364,6 @@
 				63E6B21A1B60432A0084CD61 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		63E6B21E1B60432A0084CD61 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				63E6B21F1B60432A0084CD61 /* Base */,
-			);
-			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -406,6 +461,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HATexplorer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.davidjensenius.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -422,6 +478,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				INFOPLIST_FILE = HATexplorer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.davidjensenius.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
