@@ -38,7 +38,7 @@ class MasterViewController: UITableViewController {
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
         
-        get_data_from_url("https://waterloo.hatengine.com/api/map")
+        get_data_from_url("https://mld.jensenius.org/api/map")
 
         
     }
@@ -94,30 +94,22 @@ class MasterViewController: UITableViewController {
         let urlRequest = NSMutableURLRequest(URL: url!,
             cachePolicy: .ReloadIgnoringLocalAndRemoteCacheData,
             timeoutInterval: 15.0)
-        let queue = NSOperationQueue()
-        NSURLConnection.sendAsynchronousRequest(
-            urlRequest,
-            queue: queue,
-            completionHandler: {(response: NSURLResponse?,
-                data: NSData?,
-                error: NSError?) in
-                if data!.length > 0 && error == nil{
-                    let json = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                    self.extract_json(json!)
-                }else if data!.length == 0 && error == nil{
-                    print("Nothing was downloaded")
-                } else if error != nil{
-                    print("Error happened = \(error)")
-                }
+        let session = NSURLSession.sharedSession()
+        let task = session.dataTaskWithRequest(urlRequest) { (data, response, error) in
+            if data!.length > 0 && error == nil{
+                let json = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                self.extract_json(json!)
+            }else if data!.length == 0 && error == nil{
+                print("Nothing was downloaded")
+            } else if error != nil{
+                print("Error happened = \(error)")
             }
-        )
+        }
+        task.resume()
     }
     
     func extract_json(data:NSString) {
         var parseError: NSError?
-        //let jsonResult: Dictionary = (NSJSONSerialization.JSONObjectWithData(data.dataUsingEncoding(NSUTF8StringEncoding)!, options: NSJSONReadingOptions.MutableContainers, error: nil) as! Dictionary<String, AnyObject>)
-        
-        
         let jsonData:NSData = data.dataUsingEncoding(NSUTF8StringEncoding)!
         let json: AnyObject?
         do {
@@ -129,7 +121,7 @@ class MasterViewController: UITableViewController {
         if (parseError == nil) {
             if var game_list = json as? NSArray {
                 game_list = game_list.reverseObjectEnumerator().allObjects
-                for (var i = 0; i < game_list.count ; i++ ) {
+                for i in 0 ..< game_list.count {
                     if let game_obj = game_list[i] as? NSDictionary {
                         if let game_name = game_obj["title"] as? String {
                             if let game_id = game_obj["_id"] as? String {

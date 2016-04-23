@@ -1,3 +1,4 @@
-platform :ios, '8.0'
+platform :ios, '9.0'
 
-pod 'libpd', '~> 0.7'
+pod 'Fabric'
+pod 'Crashlytics'
