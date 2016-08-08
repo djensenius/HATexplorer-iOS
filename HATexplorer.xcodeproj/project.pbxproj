@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		003678E2602C9B4E16963495 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54084A355E66A15BA964F37F /* libPods.a */; };
+		29C66D2BBACE2B54F0DAC6A4 /* libPods-HATexplorer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C5F8A031D3BB166B153BDB4 /* libPods-HATexplorer.a */; };
 		630C21121CCADA4C00352E60 /* LockNotifierCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 630C21111CCADA4C00352E60 /* LockNotifierCallback.m */; };
 		6330A8781B604E1E009DB5F5 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 6330A8761B604E1E009DB5F5 /* LICENSE */; };
 		63617A161B6428D50048C7D4 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63617A151B6428D50048C7D4 /* MapKit.framework */; };
@@ -31,7 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		54084A355E66A15BA964F37F /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C5F8A031D3BB166B153BDB4 /* libPods-HATexplorer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HATexplorer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		630C21101CCADA4C00352E60 /* LockNotifierCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LockNotifierCallback.h; sourceTree = "<group>"; };
 		630C21111CCADA4C00352E60 /* LockNotifierCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LockNotifierCallback.m; sourceTree = "<group>"; };
 		6330A86B1B604551009DB5F5 /* HATexplorer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HATexplorer-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -49,8 +49,8 @@
 		63E6B2251B60432A0084CD61 /* HATexplorerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HATexplorerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63E6B22A1B60432A0084CD61 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63E6B22B1B60432A0084CD61 /* HATexplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HATexplorerTests.swift; sourceTree = "<group>"; };
-		73F4776CDA69E08ED80FE452 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		74C51DA3C731842AEF97B836 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		640F9FB02A98D10D4FC0857D /* Pods-HATexplorer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HATexplorer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HATexplorer/Pods-HATexplorer.debug.xcconfig"; sourceTree = "<group>"; };
+		932E00A41EB73B8E92C93A24 /* Pods-HATexplorer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HATexplorer.release.xcconfig"; path = "Pods/Target Support Files/Pods-HATexplorer/Pods-HATexplorer.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				63617A161B6428D50048C7D4 /* MapKit.framework in Frameworks */,
-				003678E2602C9B4E16963495 /* libPods.a in Frameworks */,
+				29C66D2BBACE2B54F0DAC6A4 /* libPods-HATexplorer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,8 +81,8 @@
 				63E6B2101B6043290084CD61 /* HATexplorer */,
 				63E6B2281B60432A0084CD61 /* HATexplorerTests */,
 				63E6B20F1B6043290084CD61 /* Products */,
-				B9E486B598665C2A0055F5E0 /* Pods */,
 				A8FE29BB1AA2879BF7DF2F86 /* Frameworks */,
+				A3EF733332EF1608F985E0AC /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -137,22 +137,22 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A3EF733332EF1608F985E0AC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				640F9FB02A98D10D4FC0857D /* Pods-HATexplorer.debug.xcconfig */,
+				932E00A41EB73B8E92C93A24 /* Pods-HATexplorer.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		A8FE29BB1AA2879BF7DF2F86 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				63617A151B6428D50048C7D4 /* MapKit.framework */,
-				54084A355E66A15BA964F37F /* libPods.a */,
+				5C5F8A031D3BB166B153BDB4 /* libPods-HATexplorer.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		B9E486B598665C2A0055F5E0 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				73F4776CDA69E08ED80FE452 /* Pods.debug.xcconfig */,
-				74C51DA3C731842AEF97B836 /* Pods.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,13 +162,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63E6B22F1B60432A0084CD61 /* Build configuration list for PBXNativeTarget "HATexplorer" */;
 			buildPhases = (
-				1FDF7E905731C959EA9F2377 /* Check Pods Manifest.lock */,
+				6FED8B152DFF78D529B99B3F /* [CP] Check Pods Manifest.lock */,
 				63E6B20A1B6043290084CD61 /* Sources */,
 				63E6B20B1B6043290084CD61 /* Frameworks */,
 				63E6B20C1B6043290084CD61 /* Resources */,
-				8A999FEDFE260BB56F1B21C1 /* Embed Pods Frameworks */,
-				0E3E5C0DD64E5469E0171276 /* Copy Pods Resources */,
 				63E343A11CCB99C1000CE8FC /* ShellScript */,
+				61869CED6DEFE68CFF1FC600 /* [CP] Embed Pods Frameworks */,
+				BD2F682FC238D273BF4B7F24 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -267,34 +267,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0E3E5C0DD64E5469E0171276 /* Copy Pods Resources */ = {
+		61869CED6DEFE68CFF1FC600 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		1FDF7E905731C959EA9F2377 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HATexplorer/Pods-HATexplorer-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		63E343A11CCB99C1000CE8FC /* ShellScript */ = {
@@ -310,19 +295,34 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Fabric/run\" 544370f876ffe6725744240104f0010937b75f7c 156373a4a42367c4f588fcae72c05120cff26e739a341a0d2dc235ec151a7046";
 		};
-		8A999FEDFE260BB56F1B21C1 /* Embed Pods Frameworks */ = {
+		6FED8B152DFF78D529B99B3F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		BD2F682FC238D273BF4B7F24 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HATexplorer/Pods-HATexplorer-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -455,7 +455,7 @@
 		};
 		63E6B2301B60432A0084CD61 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 73F4776CDA69E08ED80FE452 /* Pods.debug.xcconfig */;
+			baseConfigurationReference = 640F9FB02A98D10D4FC0857D /* Pods-HATexplorer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -472,7 +472,7 @@
 		};
 		63E6B2311B60432A0084CD61 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 74C51DA3C731842AEF97B836 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 932E00A41EB73B8E92C93A24 /* Pods-HATexplorer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
